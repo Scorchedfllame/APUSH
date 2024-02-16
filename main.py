@@ -1,6 +1,11 @@
-class Game:
-    def __init__(self, name):
-        self.name = name
+from games.chronology import ChronologyTest
 
-    def start(self):
-        pass
+
+def main():
+    game = ChronologyTest.create_game()
+    game.start()
+
+
+if __name__ == '__main__':
+    while True:
+        main()
