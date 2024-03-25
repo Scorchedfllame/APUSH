@@ -20,7 +20,7 @@ class Question:
     def answer_question(self, answer: str):
         self.time = time.time() - self.time_start
         if answer:
-            if answer.strip().lower()[0] == self.answer:
+            if answer.strip().lower() == self.answer:
                 return True
         return False
 
@@ -43,7 +43,10 @@ class ChronologyTest:
     def print_game_state(self):
         answered = len(self.correct_answered_questions) + len(self.incorrect_answered_questions) + 1
         total = len(self.questions)
-        print(f"{self.name}  {answered}/{total}  streak: {self.streak}")
+        print(f"{self.name}:")
+        print(f"Question: {answered}/{total}  ", end="")
+        print(f"Streak: {self.streak}  ", end="")
+        print(f"Average time: {round(self.get_average_time(), 3)} seconds\n")
 
     def print_answer_key(self):
         for president, letter in self.answer_key.items():
@@ -63,13 +66,16 @@ class ChronologyTest:
 
     def get_average_time(self):
         self.total_time = 0
+        if len(self.unanswered_questions) >= len(self.questions):
+            return 0
         for question in self.questions:
             self.total_time += question.time
-        return self.total_time/len(self.questions)
+        return self.total_time/(len(self.correct_answered_questions)+len(self.incorrect_answered_questions))
 
     def start(self):
         playing = True
         while playing:
+            os.system('color 7')
             os.system('cls||clear')
             self.print_game_state()
             self.print_answer_key()
@@ -81,17 +87,23 @@ class ChronologyTest:
                 break
             correct = question.answer_question(answer)
             if correct:
+                if question.time > self.get_average_time():
+                    os.system('color 2')
+                else:
+                    os.system('color 3')
                 self.streak += 1
                 self.highest_streak = max(self.streak, self.highest_streak)
                 self.correct_answered_questions.append(question)
+                print(f"{round(question.time, 3)} seconds")
                 print("You've done it!'")
                 time.sleep(1)
             else:
+                os.system('color 4')
                 self.streak = 0
                 self.incorrect_answered_questions.append(question)
-                print(f"Correct Answer: {question.president}")
+                print(f"{round(question.time, 3)} seconds")
+                print(f"INCORRECT\nCorrect Answer: {question.president}")
                 time.sleep(2)
-            print(f"{round(question.time, 3)} seconds")
             self.unanswered_questions.remove(question)
             if len(self.unanswered_questions) == 0:
                 playing = False
@@ -100,9 +112,10 @@ class ChronologyTest:
     @staticmethod
     def generate_answer_key(questions: dict):
         alphabet = string.ascii_lowercase
+        answers = [i for i in alphabet] + [i*2 for i in alphabet]
         answer_key = {}
         for i, president in enumerate(questions.keys()):
-            answer_key[president] = alphabet[i]
+            answer_key[president] = answers[i]
         return answer_key
 
     @staticmethod
@@ -125,7 +138,14 @@ class ChronologyTest:
                     print("[*]", end="")
                 else:
                     print("[ ]", end="")
-                print(chrono)
+                chrono = chrono.replace("_", " ")
+                final = []
+                for i, letter in enumerate(chrono):
+                    if chrono[i-1] == " ":
+                        final.append(letter.upper())
+                    else:
+                        final.append(letter)
+                print("".join(final))
             choose = input("Choose a set to add.\nType 'end' to continue.\n").strip().lower()
             if choose == "end":
                 break

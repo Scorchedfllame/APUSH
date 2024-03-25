@@ -1,5 +1,2 @@
-from main import Game
-
-
-class PresidentsTest(Game):
+class PresidentsTest:
     pass
